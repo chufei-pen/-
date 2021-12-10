@@ -27,7 +27,7 @@ def main():
         screen.blit(mytool.background_image, (0, 0))
         head_font = pygame.font.SysFont(None, 60)
         text_surface = head_font.render('Press s to start!', True, (255, 255, 255))
-        screen.blit(text_surface, (180, 280))
+        screen.blit(text_surface, (150, 280))
         pygame.display.flip()
 
         

@@ -1,73 +1,26 @@
 import pygame
-import random
 import bulletClass
+import random
 
 
 
 class EnemyTank(pygame.sprite.Sprite):
-    def __init__(self, x = None, kind = None, isred = None):
+    def __init__(self):
         pygame.sprite.Sprite.__init__(self)
         
-
         self.flash = False
         self.times = 90
-        
-     
-        self.kind = kind
-        if not kind:
-            self.kind = random.choice([1, 2, 3, 4])     
-            
-    
-        if self.kind == 1:
-            self.enemy_x_0 = pygame.image.load(r"image\enemy_1_0.png").convert_alpha()
-            self.enemy_x_3 = pygame.image.load(r"image\enemy_1_3.png").convert_alpha()
-        if self.kind == 2:
-            self.enemy_x_0 = pygame.image.load(r"image\enemy_2_0.png").convert_alpha()
-            self.enemy_x_3 = pygame.image.load(r"image\enemy_2_3.png").convert_alpha()
-        if self.kind == 3:
-            self.enemy_x_0 = pygame.image.load(r"image\enemy_3_1.png").convert_alpha()
-            self.enemy_x_3 = pygame.image.load(r"image\enemy_3_3.png").convert_alpha()
-        if self.kind == 4:
-            self.enemy_x_0 = pygame.image.load(r"image\enemy_4_0.png").convert_alpha()
-            self.enemy_x_3 = pygame.image.load(r"image\enemy_4_3.png").convert_alpha()
-        self.enemy_3_0 = pygame.image.load(r"image\enemy_3_0.png").convert_alpha()
-        self.enemy_3_2 = pygame.image.load(r"image\enemy_3_2.png").convert_alpha()
-        
-        
-
-        self.isred = isred
-        if not None:
-            self.isred = random.choice((True, False, False, False, False))
-        if self.isred:
-            self.tank = self.enemy_x_3
-        else:
-            self.tank = self.enemy_x_0
-
-        self.x = x
-        if not self.x:
-            self.x = random.choice([1, 2, 3])
-        self.x -= 1
-        
-
-        self.tank_R0 = self.tank.subsurface(( 0, 48), (48, 48))
-        self.tank_R1 = self.tank.subsurface((48, 48), (48, 48))
-        self.rect = self.tank_R0.get_rect()
-        self.rect.left, self.rect.top = 3 + self.x * 12 * 24, 3 + 0 * 24
-        
-
-        self.speed = 1
         self.dir_x, self.dir_y = 0, 1
         self.life = 1
+        self.fire = 1        
+        self.speed = 1
         self.bulletNotCooling = True
         self.bullet = bulletClass.Bullet()
-
-        self.dirChange = False
+        self.isred=False
         
 
-        if self.kind == 2:
-            self.speed = 3
-        if self.kind == 3:
-            self.life = 3
+        
+
         
     def shoot(self):
 
