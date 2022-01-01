@@ -12,6 +12,7 @@ def main():
     pygame.display.set_caption("Tank War ")
     mytool=tool.Tool()
     mytool.start_sound.play()
+    
     mylevel=level.Level(1,2,screen)
     while True:
         for event in pygame.event.get():

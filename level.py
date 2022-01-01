@@ -5,46 +5,15 @@ import wall
 import myTank
 import tankfactory
 import food
-import level 
 import home
 import random
+import state
 
-class Level():
-    def __init__(self,levels,players,screen):
-        self.levels=levels
-        self.players=players
+class Level(state.State):
+    def __init__(self,screen):
         self.screen=screen
         self.mytool=tool.Tool()
-        # 定义精灵组:坦克，我方坦克，敌方坦克，敌方子弹
-        self.allTankGroup     = pygame.sprite.Group()
-        self.mytankGroup      = pygame.sprite.Group()
-        self.allEnemyGroup    = pygame.sprite.Group()
-        self.redEnemyGroup    = pygame.sprite.Group()
-        self.otherEnemyGroup  = pygame.sprite.Group()  
-        self.enemyBulletGroup = pygame.sprite.Group()
-        # 创建地图 
-        self.bgMap = wall.Map()
-        # 创建食物/道具 但不显示
-        self.prop = food.Food()
-        #創建家
-        self.myhome=home.Home()
         self.factory=tankfactory.TankFactory()
-        # 创建我方坦克
-        self.myTank_T1 = myTank.MyTank(1)
-        self.allTankGroup.add(self.myTank_T1)
-        self.mytankGroup.add(self.myTank_T1)
-        self.myTank_T2 = myTank.MyTank(2)
-        self.allTankGroup.add(self.myTank_T2)
-        self.mytankGroup.add(self.myTank_T2)
-        # 创建敌方 坦克
-        for i in range(1, 4):
-            enemy = self.factory.createTank(i,i)
-            self.allTankGroup.add(enemy)
-            self.allEnemyGroup.add(enemy)
-            if enemy.isred == True:
-                self.redEnemyGroup.add(enemy)
-                continue
-            self.otherEnemyGroup.add(enemy)
         # 敌军坦克出现动画
         appearance_image = pygame.image.load(r"image\appear.png").convert_alpha()
         self.appearance = []
@@ -52,23 +21,8 @@ class Level():
         self.appearance.append(appearance_image.subsurface((48, 0), (48, 48)))
         self.appearance.append(appearance_image.subsurface((96, 0), (48, 48)))
 
-        self.delay = 100
-        self.moving = 0
-        self.movdir = 0
-        self.moving2 = 0
-        self.movdir2 = 0
-        self.enemyNumber = 3
-        self.totalenemy=10
-        self.upgrade1=[1,3,3]
-        self.upgrade2=[1,3,3]
-        self.upgradeEnemy=0
-        self.win=True
-        self.enemyCouldMove      = True
-        self.switch_R1_R2_image  = True
-        self.running_T1          = True
-        self.running_T2          = True
         self.clock = pygame.time.Clock()
-        self.end=False
+        
         self.key1=[pygame.K_w,pygame.K_s,pygame.K_a,pygame.K_d,pygame.K_SPACE]
         self.key2=[pygame.K_UP,pygame.K_DOWN,pygame.K_LEFT,pygame.K_RIGHT,pygame.K_KP0]
         # 自定义事件
@@ -85,7 +39,7 @@ class Level():
         self.NOTMOVEEVENT = pygame.constants.USEREVENT + 3
         pygame.time.set_timer(self.NOTMOVEEVENT, 8000)
     
-    def reset(self):
+    def startup(self):
         # 定义精灵组:坦克，我方坦克，敌方坦克，敌方子弹
         self.allTankGroup     = pygame.sprite.Group()
         self.mytankGroup      = pygame.sprite.Group()
@@ -127,8 +81,8 @@ class Level():
         self.switch_R1_R2_image  = True
         self.running_T1          = True
         self.running_T2          = True
-        self.clock = pygame.time.Clock()
         self.end=False
+        self.next='win'
         
 
     def play(self):
@@ -145,12 +99,11 @@ class Level():
             self.clock.tick(60)
             if self.totalenemy<=0:
                 self.end=True
-                self.win=True
-                self.endScreen()
-            if self.myTank_T1.life<=0 or self.myTank_T2.life<=0:
+                self.next='win'
+            if self.myTank_T1.life<=0 or self.myTank_T2.life<=0 or self.myhome.life==False:
                 self.end=True
-                self.win=False
-                self.endScreen()
+                self.next='loose'
+
 
     def myEvent(self):
 
@@ -174,7 +127,7 @@ class Level():
                 self.enemyCouldMove = True
             # 创建敌方坦克延迟
             if event.type == self.DELAYEVENT:
-                if self.enemyNumber < 4 and self.totalenemy>3:
+                if (self.enemyNumber < 4 and self.totalenemy>3) or (self.enemyNumber ==0 and self.totalenemy>0):
                     i= random.choice([1, 2, 3, 4])
                     x= random.choice([1, 2, 3])
                     enemy = self.factory.createTank(i,x)
@@ -290,9 +243,9 @@ class Level():
             for each in self.allTankGroup:
                 if pygame.sprite.collide_rect(each.bullet, self.myhome):
                     self.mytool.bang_sound.play()
-                    self.end=True
-                    self.win=False
-                    self.endScreen()
+                    self.myhome.life=False
+
+                    
 
         # 画我方坦克
         self.drawMyTank(self.myTank_T1,self.running_T1)        
@@ -392,6 +345,7 @@ class Level():
                         if pygame.sprite.spritecollide(each, self.allEnemyGroup, True, None):
                             self.mytool.bang_sound.play()
                             self.enemyNumber -= 1
+                            self.totalenemy -=1
                     self.prop.life = False
                 if self.prop.kind == 2:  # 敌人静止
                     self.enemyCouldMove = False
@@ -457,26 +411,4 @@ class Level():
                     myTank.bullet.life = False
                     myTank.bullet.rect.left, myTank.bullet.rect.right = 3 + 12 * 24, 3 + 24 * 24
 
-    def endScreen(self):
-        start=False
-        while not start:
-            for event in pygame.event.get():
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_s:
-                        start=True
-
-                elif event.type == pygame.QUIT:
-                    pygame.quit()
-                    sys.exit()
-
-            self.screen.blit(self.mytool.background_image, (0, 0))
-            win_font = pygame.font.SysFont(None, 60)
-            if self.win:
-                win_surface = win_font.render('You Win!', True, (255, 255, 255))
-            else:
-                win_surface = win_font.render('You Lose!', True, (255, 255, 255))
-            head_font = pygame.font.SysFont(None, 60)
-            text_surface = head_font.render('Press s to continue', True, (255, 255, 255))
-            self.screen.blit(win_surface, (150, 180))
-            self.screen.blit(text_surface, (150, 280))
-            pygame.display.flip()       
+     
