@@ -7,7 +7,7 @@ class WinScreen(state.State):
     def __init__(self,screen):
         self.mytool=tool.Tool()
         self.screen=screen
-        self.next='menu'
+        self.next='store'
         self.end=False
 
     def play(self):

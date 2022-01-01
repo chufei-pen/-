@@ -5,6 +5,9 @@ import tool
 import level
 import endScreen
 import menu
+import myTank
+import store
+
 
 def main():
     pygame.init()   
@@ -14,19 +17,31 @@ def main():
     mytool=tool.Tool()
     mytool.start_sound.play()
     done=False
+    player1 = myTank.MyTank(1)
+    player2 = myTank.MyTank(2)
+
     stateDic={
         'menu':menu.Menu(screen),
         'level':level.Level(screen),
         'win':endScreen.WinScreen(screen),
-        'loose':endScreen.LooseScreen(screen)
+        'loose':endScreen.LooseScreen(screen),
+        'store':store.Store(screen)
     }
     stateName='menu'
 
     while not done:
         nowState=stateDic[stateName]
-        nowState.startup()
+        if stateName=="level":
+            nowState.startup(player1,player2)
+        elif stateName=="store":
+            player1,player2=nowState.startup(player1,player2)
+        else:
+            nowState.startup()
         nowState.play()
         stateName=nowState.next
+        if stateName=="menu":
+            player1 = myTank.MyTank(1)
+            player2 = myTank.MyTank(2)
 
 
         

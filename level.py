@@ -14,6 +14,7 @@ class Level(state.State):
         self.screen=screen
         self.mytool=tool.Tool()
         self.factory=tankfactory.TankFactory()
+        
         # 敌军坦克出现动画
         appearance_image = pygame.image.load(r"image\appear.png").convert_alpha()
         self.appearance = []
@@ -39,7 +40,10 @@ class Level(state.State):
         self.NOTMOVEEVENT = pygame.constants.USEREVENT + 3
         pygame.time.set_timer(self.NOTMOVEEVENT, 8000)
     
-    def startup(self):
+    def startup(self,player1,player2):
+        self.myTank_T1 = player1
+        self.myTank_T2 = player2
+        print(self.myTank_T1.fire)
         # 定义精灵组:坦克，我方坦克，敌方坦克，敌方子弹
         self.allTankGroup     = pygame.sprite.Group()
         self.mytankGroup      = pygame.sprite.Group()
@@ -54,10 +58,9 @@ class Level(state.State):
         #創建家
         self.myhome=home.Home()
         # 创建我方坦克
-        self.myTank_T1 = myTank.MyTank(1)
         self.allTankGroup.add(self.myTank_T1)
         self.mytankGroup.add(self.myTank_T1)
-        self.myTank_T2 = myTank.MyTank(2)
+        
         self.allTankGroup.add(self.myTank_T2)
         self.mytankGroup.add(self.myTank_T2)
         # 创建敌方 坦克
@@ -83,6 +86,7 @@ class Level(state.State):
         self.running_T2          = True
         self.end=False
         self.next='win'
+
         
 
     def play(self):
@@ -100,9 +104,15 @@ class Level(state.State):
             if self.totalenemy<=0:
                 self.end=True
                 self.next='win'
+                self.myTank_T1.reset()
+                self.myTank_T2.reset()
+
             if self.myTank_T1.life<=0 or self.myTank_T2.life<=0 or self.myhome.life==False:
                 self.end=True
                 self.next='loose'
+                self.myTank_T1.reset()
+                self.myTank_T2.reset()
+
 
 
     def myEvent(self):

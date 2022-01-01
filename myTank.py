@@ -14,11 +14,11 @@ tank_T2_2 = r"image\tank_T2_2.png"
 class MyTank(pygame.sprite.Sprite):
     def __init__(self, playerNumber):
         pygame.sprite.Sprite.__init__(self)
-        
+        self.playerNumber=playerNumber
 
-        if playerNumber == 1:
+        if self.playerNumber == 1:
             self.tank_L0_image = pygame.image.load(tank_T1_2).convert_alpha()
-        if playerNumber == 2:
+        if self.playerNumber == 2:
             self.tank_L0_image = pygame.image.load(tank_T2_2).convert_alpha()
         
 
@@ -42,6 +42,17 @@ class MyTank(pygame.sprite.Sprite):
         self.bullet = bulletClass.Bullet()
         #self.bullet.rect.left, self.bullet.rect.right = 3 + 12 * 24, 3 + 24 * 24
     
+    def reset(self):
+        self.life=3
+        self.bullet= bulletClass.Bullet()
+        self.dir_x, self.dir_y = 0, -1
+        self.bulletNotCooling = True
+        if self.playerNumber == 1:
+            self.rect.left, self.rect.top = 3 + 24 * 8, 3 + 24 * 24 
+        if self.playerNumber == 2:
+            self.rect.left, self.rect.top = 3 + 24 * 16, 3 + 24 * 24 
+
+
     def shoot(self):
         self.bullet.life = True
         self.bullet.changeImage(self.dir_x, self.dir_y)
